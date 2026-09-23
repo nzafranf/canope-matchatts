@@ -1,0 +1,26 @@
+**/__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+.env
+.env.*
+!.env.example
+
+# Dataset, checkpoints, generated artifacts, and training outputs live outside Git.
+/a0_jepa_s42/
+/a2_visreg_s42/
+/artifacts/
+/checkpoints/
+/dist/
+/lexicon/
+/ljspeech/
+/logs/
+/runs/
+/matcha_ljspeech.ckpt
+/third_party/.Matcha-TTS-git/
+
+# Local agent handover notes are not project documentation.
+/GPT6_SOL_MODAL_HANDOFF_PROMPT.md
+/MATCHA_EXPERIMENT_HANDOVER.md

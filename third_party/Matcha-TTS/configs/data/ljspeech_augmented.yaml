@@ -1,0 +1,22 @@
+_target_: matcha.data.text_mel_datamodule.TextMelDataModule
+name: ljspeech_augmented
+train_filelist_path: ${oc.env:MATCHA_AUG_ROOT}/filelists/train_augmented.txt
+valid_filelist_path: ${oc.env:MATCHA_AUG_ROOT}/filelists/val_augmented.txt
+batch_size: 32
+num_workers: 12
+pin_memory: true
+cleaners: [english_cleaners2]
+add_blank: true
+n_spks: 1
+n_fft: 1024
+n_feats: 80
+sample_rate: 22050
+hop_length: 256
+win_length: 1024
+f_min: 0
+f_max: 8000
+data_statistics:
+  mel_mean: -5.536622
+  mel_std: 2.116101
+seed: ${seed}
+load_durations: false

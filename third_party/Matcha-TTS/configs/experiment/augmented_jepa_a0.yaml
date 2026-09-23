@@ -1,0 +1,16 @@
+# @package _global_
+defaults:
+  - override /data: ljspeech_augmented.yaml
+  - override /model: matcha_experiment.yaml
+
+run_name: augmented_jepa_a0
+tags: ["ljspeech", "augmented", "jepa-a0", "frozen-encoder"]
+model:
+  encoder_variant: jepa_a0
+  canon_checkpoint: ${oc.env:CANON_A0_CKPT}
+  optimizer:
+    lr: 0.0001
+trainer:
+  precision: bf16-mixed
+  max_epochs: 1000
+test: false

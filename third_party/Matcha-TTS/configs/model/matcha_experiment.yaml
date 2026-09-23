@@ -1,0 +1,22 @@
+defaults:
+  - _self_
+  - encoder: default.yaml
+  - decoder: default.yaml
+  - cfm: default.yaml
+  - optimizer: adam.yaml
+
+_target_: matcha_exp.model.MatchaTTSExperiment
+n_vocab: 178
+n_spks: ${data.n_spks}
+spk_emb_dim: 64
+n_feats: 80
+data_statistics: ${data.data_statistics}
+out_size: 172
+prior_loss: true
+use_precomputed_durations: ${data.load_durations}
+
+# The official LJSpeech checkpoint initializes the native baseline and the
+# shared Matcha decoder for both frozen-encoder runs.
+matcha_checkpoint: ${oc.env:MATCHA_BASE_CKPT}
+encoder_variant: standard
+canon_checkpoint: null

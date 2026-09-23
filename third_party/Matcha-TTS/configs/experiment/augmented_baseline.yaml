@@ -1,0 +1,16 @@
+# @package _global_
+defaults:
+  - override /data: ljspeech_augmented.yaml
+  - override /model: matcha_experiment.yaml
+
+run_name: augmented_baseline
+tags: ["ljspeech", "augmented", "baseline"]
+model:
+  encoder_variant: standard
+  canon_checkpoint: null
+  optimizer:
+    lr: 0.0001
+trainer:
+  precision: bf16-mixed
+  max_epochs: 1000
+test: false

@@ -1,0 +1,20 @@
+name: matcha-canon
+channels:
+  - pytorch
+  - nvidia
+  - conda-forge
+dependencies:
+  - python=3.10
+  - pip
+  - ffmpeg
+  - espeak-ng
+  - libsndfile
+  - numpy=1.26.4
+  - pytorch=2.2.2
+  - torchvision=0.17.2
+  - torchaudio=2.2.2
+  - pytorch-cuda=12.1
+  - pip:
+      - diffusers==0.25.0
+      - huggingface-hub==0.25.2
+      - -e ./third_party/Matcha-TTS

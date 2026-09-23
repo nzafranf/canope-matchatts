@@ -1,0 +1,16 @@
+# @package _global_
+defaults:
+  - override /data: ljspeech_augmented.yaml
+  - override /model: matcha_experiment.yaml
+
+run_name: augmented_canopy_a2
+tags: ["ljspeech", "augmented", "canopy-a2", "frozen-encoder"]
+model:
+  encoder_variant: canopy_a2
+  canon_checkpoint: ${oc.env:CANON_A2_CKPT}
+  optimizer:
+    lr: 0.0001
+trainer:
+  precision: bf16-mixed
+  max_epochs: 1000
+test: false
