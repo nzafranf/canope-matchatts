@@ -277,18 +277,30 @@ def smoke_h100() -> dict:
 def _upload_fixture(local_fixture: Path) -> None:
     manifest = json.loads((local_fixture / "manifest.json").read_text(encoding="utf-8"))
     approved = ROOT / "artifacts/ljspeech_augmented_medium"
-    with volume.batch_upload() as batch:
-        batch.put_file(local_fixture / "manifest.json", "/fixture/manifest.json")
-        batch.put_file(approved / "APPROVED", "/fixture/APPROVED")
-        batch.put_file(approved / "SHA256SUMS", "/fixture/SHA256SUMS")
-        batch.put_file(approved / "augmentation_audit.json", "/fixture/augmentation_audit.json")
-        for name in manifest["filelists"]:
-            batch.put_file(local_fixture / "filelists" / name, f"/augmentation/filelists/{name}")
-        for name in manifest["wav_files"]:
-            batch.put_file(ROOT / "ljspeech/LJSpeech-1.1/wavs" / name, f"/LJSpeech-1.1/wavs/{name}")
-        batch.put_file(ROOT / "a0_jepa_s42/latest.pt", "/checkpoints/a0_jepa_s42/latest.pt")
-        batch.put_file(ROOT / "a2_visreg_s42/latest.pt", "/checkpoints/a2_visreg_s42/latest.pt")
-        batch.put_file(ROOT / "checkpoints/matcha_ljspeech.ckpt", "/checkpoints/matcha_ljspeech.ckpt")
+    small_files = [
+        (local_fixture / "manifest.json", "/fixture/manifest.json"),
+        (approved / "APPROVED", "/fixture/APPROVED"),
+        (approved / "SHA256SUMS", "/fixture/SHA256SUMS"),
+        (approved / "augmentation_audit.json", "/fixture/augmentation_audit.json"),
+    ]
+    small_files.extend((local_fixture / "filelists" / name, f"/augmentation/filelists/{name}") for name in manifest["filelists"])
+    small_files.extend((ROOT / "ljspeech/LJSpeech-1.1/wavs" / name, f"/LJSpeech-1.1/wavs/{name}") for name in manifest["wav_files"])
+    checkpoints = [
+        (ROOT / "a0_jepa_s42/latest.pt", "/checkpoints/a0_jepa_s42/latest.pt"),
+        (ROOT / "a2_visreg_s42/latest.pt", "/checkpoints/a2_visreg_s42/latest.pt"),
+        (ROOT / "checkpoints/matcha_ljspeech.ckpt", "/checkpoints/matcha_ljspeech.ckpt"),
+    ]
+    for group in (small_files, *((item,) for item in checkpoints)):
+        for attempt in range(2):
+            try:
+                with volume.batch_upload(force=True) as batch:
+                    for local, remote in group:
+                        batch.put_file(local, remote)
+                break
+            except (OSError, TimeoutError):
+                if attempt == 1:
+                    raise
+                time.sleep(5)
 
 
 def _write_report(report: dict) -> None:

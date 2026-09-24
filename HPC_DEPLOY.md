@@ -1,6 +1,6 @@
 # MatchaTTS HPC deployment
 
-This handoff separates **code** from **non-code assets**. `dist/matcha_hpc_bundle.tar` contains the experiment code, pinned Matcha source, configs, SLURM scripts, and a checksum manifest. Google Drive supplies the WAVs, approved augmentation files, LJSpeech metadata, lexicon, and three checkpoints. The code archive contains none of those assets.
+This deployment separates **code** from **non-code assets**. The [GitHub repository](https://github.com/nzafranf/canope-matchatts) contains the experiment code, pinned Matcha source, configs, and SLURM scripts. `dist/matcha_hpc_bundle.tar` adds a checksum manifest. Google Drive supplies the WAVs, approved augmentation files, LJSpeech metadata, lexicon, and three checkpoints. The code archive contains none of those assets.
 
 The [shared Drive folder](https://drive.google.com/drive/folders/1eFzRECP1BWAvc1OZHUkRRk-kdDrp8qBZ?usp=sharing) currently has `dataset/wavs/` and four train/validation filelists. Those filelists match the approved text and row order, but contain Windows paths. The folder **does not yet have `assets/`**; upload those files using step 2 before attempting HPC retrieval.
 
@@ -14,7 +14,7 @@ python matcha_exp/scripts/hpc_bundle.py verify-archive dist/matcha_hpc_bundle.ta
 scp dist/matcha_hpc_bundle.tar dist/matcha_hpc_bundle.tar.sha256 USER@LOGIN_HOST:REMOTE_STAGING_DIRECTORY/
 ```
 
-The builder verifies the approved digest `3f3c6a85b71d3732`, all 17 augmentation checksums, the policy source/lexicon/metadata hashes, the pinned Matcha revision, and the A0, A2, and official Matcha checkpoint hashes. It records expected Drive asset hashes in the code archive manifest. The root-level 30 MB `matcha_ljspeech.ckpt` is excluded; the official release asset is `checkpoints/matcha_ljspeech.ckpt`.
+The builder verifies the approved digest `3f3c6a85b71d3732`, all 17 augmentation checksums, the policy source/lexicon/metadata hashes, the vendored Matcha file hashes tied to revision `bd4d90d93214b37f7a159cf205ae85762c2c10aa`, and the A0, A2, and official Matcha checkpoint hashes. It records expected Drive asset hashes in the code archive manifest. The root-level 30 MB `matcha_ljspeech.ckpt` is excluded; the official release asset is `checkpoints/matcha_ljspeech.ckpt`.
 
 On the HPC login node:
 

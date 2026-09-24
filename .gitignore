@@ -24,3 +24,16 @@
 # Local agent handover notes are not project documentation.
 /GPT6_SOL_MODAL_HANDOFF_PROMPT.md
 /MATCHA_EXPERIMENT_HANDOVER.md
+
+# Keep the vendored source focused on files required by the experiment.
+/third_party/Matcha-TTS/.env.example
+/third_party/Matcha-TTS/.github/
+/third_party/Matcha-TTS/.gitignore
+/third_party/Matcha-TTS/.pre-commit-config.yaml
+/third_party/Matcha-TTS/.pylintrc
+/third_party/Matcha-TTS/Makefile
+/third_party/Matcha-TTS/README.md
+/third_party/Matcha-TTS/matcha/hifigan/README.md
+/third_party/Matcha-TTS/notebooks/
+/third_party/Matcha-TTS/scripts/
+/third_party/Matcha-TTS/synthesis.ipynb

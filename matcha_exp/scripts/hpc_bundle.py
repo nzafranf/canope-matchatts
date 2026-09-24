@@ -8,7 +8,6 @@ import hashlib
 import io
 import json
 import os
-import subprocess
 import tarfile
 import wave
 from pathlib import Path
@@ -98,6 +97,25 @@ def verify_source_assets(root: Path) -> dict[str, Path]:
     return paths
 
 
+def verify_vendored_source(root: Path) -> list[Path]:
+    if (root / "matcha_exp/UPSTREAM_MATCHA_COMMIT").read_text().strip() != UPSTREAM:
+        raise ValueError("Pinned Matcha revision marker mismatch")
+    manifest = json.loads((root / "matcha_exp/UPSTREAM_MATCHA_FILES.json").read_text(encoding="utf-8"))
+    if manifest.get("format") != 1 or manifest.get("upstream_commit") != UPSTREAM:
+        raise ValueError("Vendored Matcha source manifest identity mismatch")
+    entries = manifest.get("files")
+    if not isinstance(entries, dict) or not entries:
+        raise ValueError("Vendored Matcha source manifest is empty")
+    upstream_root = root / "third_party/Matcha-TTS"
+    files = []
+    for name, expected in sorted(entries.items()):
+        path = upstream_root / safe_relative(name)
+        if not path.is_file() or digest(path) != expected:
+            raise ValueError(f"Vendored Matcha source checksum mismatch: {name}")
+        files.append(path)
+    return files
+
+
 def source_files(root: Path) -> list[Path]:
     files = [
         root / name
@@ -109,10 +127,11 @@ def source_files(root: Path) -> list[Path]:
             "data/augmenter.py",
         )
     ]
-    for directory in ("matcha_exp", "third_party/Matcha-TTS", "modules"):
+    for directory in ("matcha_exp", "modules"):
         for path in (root / directory).rglob("*"):
             if path.is_file() and not (set(path.relative_to(root).parts) & EXCLUDE_DIRS) and path.suffix not in EXCLUDE_SUFFIXES:
                 files.append(path)
+    files.extend(verify_vendored_source(root))
     result = sorted(set(files))
     missing = [str(path) for path in result if not path.is_file()]
     if missing:
@@ -122,13 +141,6 @@ def source_files(root: Path) -> list[Path]:
 
 def build(output: Path) -> None:
     assets = verify_source_assets(ROOT)
-    upstream_root = ROOT / "third_party/Matcha-TTS"
-    revision = subprocess.check_output(
-        ["git", "-c", f"safe.directory={upstream_root.as_posix()}", "-C", str(upstream_root), "rev-parse", "HEAD"],
-        text=True,
-    ).strip()
-    if revision != UPSTREAM or (ROOT / "matcha_exp/UPSTREAM_MATCHA_COMMIT").read_text().strip() != UPSTREAM:
-        raise ValueError(f"Pinned Matcha revision mismatch: {revision}")
     files = source_files(ROOT)
     manifest = {
         "format": 2,

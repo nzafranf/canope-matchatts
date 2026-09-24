@@ -9,7 +9,7 @@ It is not a training run, benchmark, hyperparameter search, Drive upload, or SLU
 ## Mandatory safety gates
 
 1. Run `modal profile current` before creating any cloud resource.
-2. The requester named account/profile `ganeshataqwa0`, but the profile observed on this workstation on 2026-09-24 was `ganeshataqwa01`. These are different strings. If the active profile is not exactly the account the requester confirms, stop and ask; never switch profiles speculatively.
+2. The requester confirmed account/profile `ganeshataqwa01`. Check that `modal profile current` returns this exact string before creating cloud resources.
 3. Never print, copy, or commit Modal tokens.
 4. Never use `--detach`. The launching process must retain control and stop the ephemeral app when it exits.
 5. Use the exact GPU selectors `A100-80GB` and `H100!`. The exclamation mark prevents the H100 request from being fulfilled by a different GPU type.
@@ -235,7 +235,7 @@ After the script has passed CPU-only review:
 
 ```bash
 modal profile current
-modal run -m matcha_exp.modal_smoke
+modal run -m matcha_exp.modal_smoke --expected-profile ganeshataqwa01
 ```
 
 Do not use `--detach`. In another terminal, watch the app in the Modal dashboard or CLI. Emergency stop:
