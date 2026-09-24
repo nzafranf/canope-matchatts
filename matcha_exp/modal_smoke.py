@@ -383,17 +383,21 @@ def main(expected_profile: str) -> None:
         deadline.cancel()
         try:
             stopped = subprocess.run(["modal", "app", "stop", app.app_id or APP_NAME, "-y"], capture_output=True, text=True, timeout=45)
-            listed = subprocess.run(["modal", "app", "list", "--json"], capture_output=True, text=True, timeout=45)
-            if listed.returncode == 0:
-                apps = json.loads(listed.stdout)
-                matching = [item for item in apps if APP_NAME in str(item.get("Description", ""))]
-                report["cleanup"]["app_stopped"] = all(
-                    str(item.get("State", "")).lower() in ("stopped", "disabled")
-                    and str(item.get("Tasks", "0")) == "0"
-                    for item in matching
-                )
-            else:
-                report["errors"].append("Could not verify Modal app status after stop request")
+            for _ in range(10):
+                listed = subprocess.run(["modal", "app", "list", "--json"], capture_output=True, text=True, timeout=30)
+                if listed.returncode == 0:
+                    apps = json.loads(listed.stdout)
+                    matching = [item for item in apps if APP_NAME in str(item.get("Description", ""))]
+                    report["cleanup"]["app_stopped"] = all(
+                        str(item.get("State", "")).lower() in ("stopped", "disabled")
+                        and str(item.get("Tasks", "0")) == "0"
+                        for item in matching
+                    )
+                    if report["cleanup"]["app_stopped"]:
+                        break
+                time.sleep(2)
+            if not report["cleanup"]["app_stopped"]:
+                report["errors"].append("Could not verify Modal app stopped with zero tasks")
             if stopped.returncode != 0 and not report["cleanup"]["app_stopped"]:
                 report["errors"].append("Modal app stop command failed")
         except Exception as cleanup_error:
